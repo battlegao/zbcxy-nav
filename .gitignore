@@ -1,0 +1,7 @@
+# WorkBuddy 内部文件
+.workbuddy/
+.wbapp_*.genie
+
+# 系统文件
+Thumbs.db
+.DS_Store

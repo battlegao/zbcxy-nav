@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>智博程序园 · 职场人与开发者的网址导航</title>
+<meta name="description" content="智博程序园（ZBCXY）收录全网上千个优质网站：求职招聘、职场进阶、办公学习、AI 工具与开发技术一站直达，点击 ★ 即可收藏。" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body id="top">
+
+<!-- ===== 顶部导航 ===== -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a class="brand" href="#" data-nav="home">
+      <span class="brand-logo">智<img src="assets/logo.jpg" alt="智博程序园 Logo" onerror="this.remove()"></span>
+      <span class="brand-text">智博程序园<em>ZBCXY</em></span>
+    </a>
+
+    <nav class="topnav">
+      <button class="topnav-item is-active" data-nav="home">首页</button>
+      <button class="topnav-item" data-nav="hot">发现</button>
+      <button class="topnav-item" data-nav="rank">排行榜</button>
+      <button class="topnav-item" data-nav="fav">我的收藏 <b class="badge" id="favBadge">0</b></button>
+    </nav>
+
+    <div class="header-search">
+      <select id="engineSelect" class="engine-select" title="选择搜索引擎"></select>
+      <input id="headerSearch" type="text" placeholder="搜索已收录的网站，回车直接搜索…" autocomplete="off" />
+      <button class="hsearch-btn" id="headerSearchBtn" title="搜索">↵</button>
+    </div>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" title="切换主题">🌙</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <h1 class="hero-title">工作学习，一站直达</h1>
+    <p class="hero-sub">精选 <b id="statSites">0</b> 个优质网站 · <b id="statCats">0</b> 个分类 · 求职 / 办公 / 学习 / 开发，都在这里</p>
+    <div class="hero-search">
+      <select id="heroEngine" class="engine-select" title="选择搜索引擎"></select>
+      <input id="heroInput" type="text" placeholder="输入关键词，搜索已收录网站；或回车用搜索引擎搜索全网…" autocomplete="off" />
+      <button class="btn btn-primary" id="heroBtn">搜 索</button>
+    </div>
+    <div class="hero-tags" id="heroTags"></div>
+    <div class="lucky-row">
+      <button class="btn btn-ghost lucky-btn" id="luckyBtn" title="随机抽一个好站逛逛">🎲 盲盒探索 · 随机逛个好站</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 主体 ===== -->
+<main class="layout" id="layout">
+  <!-- 侧栏分类 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-card">
+      <div class="side-head">
+        <div class="side-title">全部分类</div>
+        <button class="collapse-btn" id="collapseBtn" title="收缩侧边栏（快捷键 [ ）">⟨</button>
+      </div>
+      <ul class="cat-list" id="catList"></ul>
+    </div>
+    <div class="side-card side-tip" id="sideTip">
+      <div class="side-title">使用技巧</div>
+      <ul class="tip-list">
+        <li><kbd>/</kbd> 聚焦搜索，<kbd>[</kbd> 收缩侧栏</li>
+        <li>点击标签可筛选同类网站</li>
+        <li>点 ★ 收藏，收藏保存在本机浏览器</li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- 内容区 -->
+  <div class="content">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h2 id="viewTitle">常用推荐</h2>
+        <span class="view-count" id="viewCount"></span>
+      </div>
+      <div class="toolbar-right">
+        <div class="active-filters" id="activeFilters"></div>
+        <select id="sortSelect" class="mini-select">
+          <option value="default">默认排序</option>
+          <option value="stars">按热度</option>
+          <option value="name">按名称</option>
+        </select>
+        <button class="btn btn-ghost" id="clearFilter">重置</button>
+      </div>
+    </div>
+
+    <div id="sections"></div>
+
+    <div class="empty hide" id="empty">
+      <div class="empty-emoji">🔍</div>
+      <p>没有找到匹配的网站</p>
+      <span>换个关键词，或点击左侧分类浏览</span>
+    </div>
+  </div>
+</main>
+
+<!-- ===== 底部：关于我们 / 联系方式留白区 ===== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col footer-about">
+      <div class="footer-brand">
+        <span class="brand-logo">智<img src="assets/logo.jpg" alt="智博程序园 Logo" onerror="this.remove()"></span>
+        <span>智博程序园 <em>ZBCXY</em></span>
+      </div>
+      <h4>关于我们</h4>
+      <p>
+        「智博程序园」是一个面向职场工作者与开发者的网址导航。
+        我们持续搜罗并人工筛选全网上千个优质站点，
+        求职招聘、办公效率、学习提升、生活娱乐、开发技术一站直达，
+        让你不再为「记不住网址、找不到工具」浪费时间。
+      </p>
+      <p class="footer-meta">
+        当前已收录 <b id="footSites">0</b> 个站点，覆盖 <b id="footCats">0</b> 个分类。
+        站内链接均为第三方提供，本站不生产内容，请自行甄别服务质量。
+      </p>
+      <div class="footer-actions">
+        <button class="btn btn-ghost" data-nav="home">开始浏览</button>
+        <button class="btn btn-ghost" id="footSubmit">提交收录</button>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>快捷分类</h4>
+      <ul class="footer-links" id="footCatList"></ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>站点导航</h4>
+      <ul class="footer-links">
+        <li><a href="#" data-nav="home">首页</a></li>
+        <li><a href="#" data-nav="rank">网站排行榜</a></li>
+        <li><a href="#" data-nav="hot">发现</a></li>
+        <li><a href="#" data-nav="fav">我的收藏</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col footer-contact">
+      <h4>联系我们</h4>
+      <div class="qr-row">
+        <div class="qr-item">
+          <div class="qr-slot">
+            <img src="assets/qr-wechat.jpg" alt="微信二维码" onerror="this.remove()">
+          </div>
+          <span class="qr-label">微信 · 扫码加好友</span>
+        </div>
+        <div class="qr-item">
+          <div class="qr-slot">
+            <img src="assets/qr-mp.jpg" alt="公众号二维码" onerror="this.remove()">
+          </div>
+          <span class="qr-label">公众号</span>
+        </div>
+      </div>
+      <ul class="contact-list">
+        <li><span class="ci">✉</span>邮箱：<a href="mailto:2942955585@qq.com" class="contact-link">2942955585@qq.com</a></li>
+        <li><span class="ci">⌗</span>GitHub：<a href="https://github.com/battlegao" target="_blank" rel="noopener noreferrer" class="contact-link">github.com/battlegao</a></li>
+        <li><span class="ci">☏</span>合作：请通过公众号留言或微信联系</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 智博程序园 ZBCXY · 仅供学习交流</span>
+    <!-- 备案号留白（拿到备案号后取消注释并替换号码）
+    <span class="blank">京ICP备00000000号-0</span>
+    -->
+    <span class="bsz-stat">
+      <span id="busuanzi_container_site_pv" style="display:none">👀 本站总访问量 <b id="busuanzi_value_site_pv">-</b> 次</span>
+      <span id="busuanzi_container_site_uv" style="display:none"> · 访客数 <b id="busuanzi_value_site_uv">-</b> 人</span>
+    </span>
+    <a href="#" class="to-top-link" id="footTop">返回顶部 ↑</a>
+  </div>
+</footer>
+
+<!-- ===== 跳转确认弹窗 ===== -->
+<div class="modal-mask hide" id="jumpMask">
+  <div class="modal modal-jump">
+    <button class="modal-close" id="jumpClose">✕</button>
+    <div class="jump-icon">🔗</div>
+    <h3 class="modal-title">确认访问该网站？</h3>
+    <p class="modal-note">你即将离开本站，前往以下第三方网页：</p>
+    <div class="jump-target">
+      <div class="jump-name" id="jumpName">网站名称</div>
+      <div class="jump-url" id="jumpUrl">https://example.com</div>
+    </div>
+    <div class="jump-actions">
+      <button class="btn btn-ghost" id="jumpCancel">取消，继续浏览</button>
+      <button class="btn btn-primary" id="jumpGo">立即访问 ↗</button>
+    </div>
+    <label class="jump-skip"><input type="checkbox" id="jumpSkip" /> 以后点击网站直接跳转，不再询问</label>
+  </div>
+</div>
+
+<!-- ===== 提示 ===== -->
+<div class="toast" id="toast"></div>
+<button class="to-top hide" id="toTop" title="返回顶部">↑</button>
+
+<script src="js/data.js"></script>
+<script src="js/data-sites-a.js"></script>
+<script src="js/data-sites-b.js"></script>
+<script src="js/data-sites-c.js"></script>
+<script src="js/data-sites-d.js"></script>
+<script src="js/data-sites-e.js"></script>
+<script src="js/data-sites-f.js"></script>
+<script src="js/app.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>
