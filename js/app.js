@@ -431,8 +431,18 @@ function updateSpy() {
     });
   items.forEach(b => b.classList.toggle('is-spy', (b.dataset.cat || '') === current));
   const active = items.find(b => b.classList.contains('is-spy'));
-  if (active && typeof active.scrollIntoView === 'function') {
-    try { active.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  if (active) {
+    // 只滚动侧栏容器自身居中，绝不能 scrollIntoView——移动端会与触摸滚动冲突导致整页抖动
+    const list = $('#catList');
+    try {
+      if (list.scrollWidth > list.clientWidth + 1) {
+        const left = active.offsetLeft - list.clientWidth / 2 + active.offsetWidth / 2;
+        list.scrollTo ? list.scrollTo({ left, behavior: 'smooth' }) : (list.scrollLeft = left);
+      } else if (list.scrollHeight > list.clientHeight + 1) {
+        const top = active.offsetTop - list.clientHeight / 2 + active.offsetHeight / 2;
+        list.scrollTo ? list.scrollTo({ top, behavior: 'smooth' }) : (list.scrollTop = top);
+      }
+    } catch (e) { /* 老浏览器无平滑滚动，忽略 */ }
   }
 }
 
