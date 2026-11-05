@@ -14,8 +14,15 @@ const LS = {
   likes: 'devnav_likes',
   clicks: 'devnav_clicks'
 };
-const HOME_PER_CAT = 12;                // 首页每个分类预览的站点数
+const HOME_PER_CAT = 12;                // 首页每个分类预览的站点数（桌面）
+const MOBILE_PER_CAT = 4;               // 移动端（≤900px）每个分类展示数，方便快速滑到页脚
 const HOME_CAT_LIMIT = 6;               // 首屏精选：默认展示的分类数，其余折叠
+
+/* 移动端判定：≤900px 侧栏变顶部胶囊时启用 */
+const isCompactCat = () => {
+  try { return window.matchMedia ? window.matchMedia('(max-width: 900px)').matches : false; }
+  catch (e) { return false; }
+};
 
 const CAT_MAP = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 const $  = (s, r = document) => r.querySelector(s);
@@ -228,7 +235,7 @@ function render() {
   const isFlat = !!(state.query || state.tag || state.cat || state.view !== 'home' || state.sort !== 'default');
 
   // 视图指纹：视图真正变化才播放入场动效（点赞/收藏等原地刷新不重播）
-  const key = [state.view, state.cat, state.tag, state.query, state.sort, state.catsExpanded].join('|');
+  const key = [state.view, state.cat, state.tag, state.query, state.sort, state.catsExpanded, isCompactCat() ? 'm' : 'd'].join('|');
   const viewChanged = key !== state.renderKey;
   state.renderKey = key;
 
@@ -258,12 +265,13 @@ function render() {
   } else {
     // 首页分组预览：首屏只展示前 6 个分类，其余折叠，可一键展开
     const activeCats = CATEGORIES.filter(c => list.some(s => s.cat === c.id));
+    const perCat = isCompactCat() ? MOBILE_PER_CAT : HOME_PER_CAT;
     const limited = !state.catsExpanded && activeCats.length > HOME_CAT_LIMIT;
     box.classList.toggle('is-limited', limited);
     box.innerHTML = activeCats.map((c, idx) => {
       const items = list.filter(s => s.cat === c.id);
       const extra = limited && idx >= HOME_CAT_LIMIT ? ' sec-extra' : '';
-      const show = items.slice(0, HOME_PER_CAT);
+      const show = items.slice(0, perCat);
       return `
       <section class="section${extra}" id="sec-${c.id}">
         <div class="section-head">
@@ -690,6 +698,13 @@ function bind() {
     $('#header').style.boxShadow = window.scrollY > 8 ? 'var(--shadow-sm)' : 'none';
     $('#toTop').classList.toggle('hide', window.scrollY < 500);
     queueSpy();
+  });
+
+  /* 视口跨过移动/桌面断点时重渲染首页分组（每类展示数不同） */
+  let lastCompact = isCompactCat();
+  window.addEventListener('resize', () => {
+    const c = isCompactCat();
+    if (c !== lastCompact) { lastCompact = c; render(); }
   });
 }
 
