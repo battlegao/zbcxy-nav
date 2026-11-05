@@ -48,6 +48,18 @@ const state = {
   renderKey: ''          // 上次渲染的视图指纹，用于判断是否播放入场动效
 };
 
+/* 页面滚动：移动端禁用平滑动画——
+   iOS/Android 上程序化 smooth 滚动无法被触摸打断，会产生拉锯抖动 */
+const scrollPage = (top = 0) => {
+  window.scrollTo({ top, behavior: isCompactCat() ? 'auto' : 'smooth' });
+};
+const scrollToContent = () => {
+  const el = document.querySelector('.content');
+  if (!el) return;
+  try { el.scrollIntoView({ block: 'start', behavior: isCompactCat() ? 'auto' : 'smooth' }); }
+  catch (e) { el.scrollIntoView(); }
+};
+
 let ALL = [];        // 生效站点（内置去重后）
 let favSet = new Set();
 let likedSet = new Set();
@@ -266,7 +278,8 @@ function render() {
     // 首页分组预览：首屏只展示前 6 个分类，其余折叠，可一键展开
     const activeCats = CATEGORIES.filter(c => list.some(s => s.cat === c.id));
     const perCat = isCompactCat() ? MOBILE_PER_CAT : HOME_PER_CAT;
-    const limited = !state.catsExpanded && activeCats.length > HOME_CAT_LIMIT;
+    // 移动端不折叠：全部分类直接展示（每类 4 个），一滑到底看页脚宣传区
+    const limited = !isCompactCat() && !state.catsExpanded && activeCats.length > HOME_CAT_LIMIT;
     box.classList.toggle('is-limited', limited);
     box.innerHTML = activeCats.map((c, idx) => {
       const items = list.filter(s => s.cat === c.id);
@@ -418,8 +431,8 @@ function requestJump(name, url) {
 let spyTick = false;
 
 function spyActive() {
-  // 仅在首页分组模式（无筛选）下启用
-  return state.view === 'home' && !state.cat && !state.tag && !state.query && state.sort === 'default';
+  // 仅在桌面首页分组模式（无筛选）下启用；移动端胶囊栏无需滚动同步
+  return !isCompactCat() && state.view === 'home' && !state.cat && !state.tag && !state.query && state.sort === 'default';
 }
 
 function updateSpy() {
@@ -503,7 +516,7 @@ function runSearch(q) {
   if (matchSites(q, 1).length) {
     state.query = q; state.view = 'home'; state.cat = null; state.tag = null;
     setNav('home'); render();
-    document.querySelector('.content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector('.content') ? scrollToContent() : null;
   } else {
     const e = ENGINES.find(x => x.id === state.engine) || ENGINES[0];
     window.open(e.url + encodeURIComponent(q), '_blank');
@@ -569,14 +582,14 @@ function bind() {
       e.preventDefault();
       setNav(nav.dataset.nav);
       render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollPage(0);
       return;
     }
     const jump = e.target.closest('[data-cat]');
     if (jump && !jump.classList.contains('cat-item') && !jump.classList.contains('sh-more')) {
       e.preventDefault();
       state.cat = jump.dataset.cat; state.tag = null; state.query = ''; state.view = 'home';
-      setNav('home'); render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      setNav('home'); render(); scrollPage(0);
     }
   });
 
@@ -610,7 +623,7 @@ function bind() {
     const btn = e.target.closest('.cat-item'); if (!btn) return;
     state.cat = btn.dataset.cat || null; state.tag = null; state.view = 'home'; state.query = '';
     $('#heroInput').value = ''; setNav('home'); render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollPage(0);
   });
 
   /* Hero 标签 */
@@ -618,7 +631,7 @@ function bind() {
     const b = e.target.closest('.htag'); if (!b) return;
     state.tag = b.dataset.tag; state.cat = null; state.query = ''; state.view = 'home';
     $('#heroInput').value = ''; setNav('home'); render();
-    document.querySelector('.content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToContent();
   });
 
   /* 内容区委托 */
@@ -626,7 +639,7 @@ function bind() {
     const rrow = e.target.closest('.rank-row');
     if (rrow) { requestJump(rrow.dataset.jumpName, rrow.dataset.jumpUrl); return; }
     const rtab = e.target.closest('[data-rank-cat]');
-    if (rtab) { state.rankCat = rtab.dataset.rankCat; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if (rtab) { state.rankCat = rtab.dataset.rankCat; render(); scrollPage(0); return; }
     const rchip = e.target.closest('[data-rank-sort]');
     if (rchip) { state.rankSort = rchip.dataset.rankSort; render(); return; }
     if (e.target.closest('#moreCats')) { state.catsExpanded = true; render(); return; }
@@ -645,13 +658,13 @@ function bind() {
       e.preventDefault();
       state.tag = tag.dataset.tag; state.cat = null; state.query = ''; state.view = 'home';
       $('#heroInput').value = ''; setNav('home'); render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollPage(0);
       return;
     }
     const more = e.target.closest('.sh-more');
     if (more) {
       state.cat = more.dataset.cat; state.view = 'home'; state.tag = null; state.query = '';
-      render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      render(); scrollPage(0);
     }
   });
 
@@ -681,8 +694,8 @@ function bind() {
   /* 侧栏收缩 / 主题 / 返回顶部 */
   $('#collapseBtn').addEventListener('click', toggleCollapse);
   $('#themeBtn').addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
-  $('#toTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  $('#footTop').addEventListener('click', e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  $('#toTop').addEventListener('click', () => scrollPage(0));
+  $('#footTop').addEventListener('click', e => { e.preventDefault(); scrollPage(0); });
 
   /* 底部入口 */
   $('#footSubmit').addEventListener('click', () => toast('已收到！请通过公众号留言提交站点'));

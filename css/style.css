@@ -48,7 +48,9 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+/* 平滑滚动仅桌面启用：移动端程序化 smooth 滚动无法被触摸打断，会拉锯抖动 */
+html { scroll-behavior: auto; }
+@media (min-width: 901px) { html { scroll-behavior: smooth; } }
 
 body {
   margin: 0;
